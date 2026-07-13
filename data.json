@@ -1,0 +1,202 @@
+[
+  {
+    "id": "m001",
+    "name": "Amoxicillin",
+    "class": "Antibiotic",
+    "indications": ["Bacterial infections", "Pneumonia", "Bronchitis", "Ear infections"],
+    "dosage": "500mg every 8 hours or 875mg every 12 hours for adults.",
+    "sideEffects": ["Nausea", "Vomiting", "Diarrhea", "Rash"],
+    "contraindications": ["Penicillin allergy"],
+    "defenseContext": "Standard issue in field medical kits for broad-spectrum bacterial infections. Ensure patient has no penicillin allergy before administration."
+  },
+  {
+    "id": "m002",
+    "name": "Ibuprofen",
+    "class": "NSAID",
+    "indications": ["Pain relief", "Fever reduction", "Inflammation"],
+    "dosage": "200-400mg every 4-6 hours. Max 3200mg/day.",
+    "sideEffects": ["Stomach pain", "Heartburn", "Bleeding risk"],
+    "contraindications": ["Active ulcer", "History of GI bleeding"],
+    "defenseContext": "Primary non-opioid analgesic for combat-related minor injuries and sprains. Take with food if possible."
+  },
+  {
+    "id": "m003",
+    "name": "Epinephrine (Adrenalin)",
+    "class": "Alpha/Beta Agonist",
+    "indications": ["Anaphylaxis", "Cardiac arrest", "Severe asthma"],
+    "dosage": "0.3mg to 0.5mg IM for anaphylaxis.",
+    "sideEffects": ["Palpitations", "Sweating", "Anxiety", "Tremor"],
+    "contraindications": ["None in life-threatening emergencies"],
+    "defenseContext": "Critical lifesaving medication. All personnel should carry auto-injectors in high-risk environments. Administer immediately upon signs of severe allergic reaction."
+  },
+  {
+    "id": "m004",
+    "name": "Morphine Sulfate",
+    "class": "Opioid Analgesic",
+    "indications": ["Severe pain"],
+    "dosage": "2-10mg IV initially, titrate to effect.",
+    "sideEffects": ["Respiratory depression", "Sedation", "Hypotension"],
+    "contraindications": ["Head injury", "Severe asthma", "Hypotension"],
+    "defenseContext": "Used for severe trauma pain. Monitor respiratory rate closely. Naloxone must be available."
+  },
+  {
+    "id": "m005",
+    "name": "Naloxone (Narcan)",
+    "class": "Opioid Antagonist",
+    "indications": ["Opioid overdose"],
+    "dosage": "0.4-2mg IV/IM/SC/IN, repeat every 2-3 minutes if necessary.",
+    "sideEffects": ["Precipitated withdrawal", "Tachycardia", "Agitation"],
+    "contraindications": ["None in emergency"],
+    "defenseContext": "Essential for counteracting opioid-induced respiratory depression. Carried by medics for immediate deployment."
+  },
+  {
+    "id": "m006",
+    "name": "Tranexamic Acid (TXA)",
+    "class": "Antifibrinolytic",
+    "indications": ["Severe hemorrhage", "Massive bleeding"],
+    "dosage": "1g over 10 minutes IV, followed by 1g over 8 hours.",
+    "sideEffects": ["Nausea", "Diarrhea", "Visual disturbances", "Thrombosis risk"],
+    "contraindications": ["Active intravascular clotting", "Subarachnoid hemorrhage"],
+    "defenseContext": "Critical for treating combat casualties with severe bleeding. Administer within 3 hours of injury for maximum effectiveness."
+  },
+  {
+    "id": "m007",
+    "name": "Atropine",
+    "class": "Anticholinergic",
+    "indications": ["Nerve agent poisoning", "Organophosphate poisoning", "Bradycardia"],
+    "dosage": "2mg IM every 5-15 minutes until secretions dry (for nerve agents).",
+    "sideEffects": ["Dry mouth", "Blurred vision", "Tachycardia", "Urinary retention"],
+    "contraindications": ["Glaucoma (relative in emergencies)"],
+    "defenseContext": "Component of nerve agent antidote kits (e.g., ATNAA). Administer immediately upon exposure to chemical nerve agents."
+  },
+  {
+    "id": "m008",
+    "name": "Ciprofloxacin",
+    "class": "Fluoroquinolone Antibiotic",
+    "indications": ["Anthrax exposure", "Severe traveler's diarrhea", "Typhoid fever"],
+    "dosage": "500mg every 12 hours for 60 days for anthrax.",
+    "sideEffects": ["Tendon rupture", "Nausea", "Dizziness"],
+    "contraindications": ["Myasthenia gravis", "History of tendon disorders"],
+    "defenseContext": "Stockpiled for biological warfare defense, particularly against inhaled anthrax. Use with caution during intense physical activity due to tendon rupture risk."
+  },
+  {
+    "id": "m009",
+    "name": "Ketamine",
+    "class": "Dissociative Anesthetic",
+    "indications": ["Procedural sedation", "Severe pain management in trauma"],
+    "dosage": "0.5 to 1 mg/kg IV or 2 to 4 mg/kg IM.",
+    "sideEffects": ["Hallucinations", "Elevated heart rate", "Increased salivation"],
+    "contraindications": ["Schizophrenia", "Severe hypertension"],
+    "defenseContext": "Preferred analgesic and anesthetic in combat environments where airway management is difficult, as it preserves respiratory drive."
+  },
+  {
+    "id": "m010",
+    "name": "Moxifloxacin",
+    "class": "Fluoroquinolone Antibiotic",
+    "indications": ["Battlefield wounds", "Respiratory tract infections"],
+    "dosage": "400mg PO once daily.",
+    "sideEffects": ["Nausea", "Diarrhea", "QT prolongation"],
+    "contraindications": ["Known QT prolongation", "Uncorrected hypokalemia"],
+    "defenseContext": "Part of the Combat Wound Pill Pack (CWPP). Taken orally by conscious casualties with penetrating injuries to prevent infection."
+  },
+  {
+    "id": "m011",
+    "name": "Meloxicam",
+    "class": "NSAID",
+    "indications": ["Mild to moderate pain"],
+    "dosage": "15mg PO once daily.",
+    "sideEffects": ["Indigestion", "Nausea", "Dizziness"],
+    "contraindications": ["Aspirin allergy", "Active GI bleeding"],
+    "defenseContext": "Part of the Combat Wound Pill Pack (CWPP) for pain control in conscious casualties who can swallow. Does not alter platelet function as significantly as aspirin."
+  },
+  {
+    "id": "m012",
+    "name": "Ceftriaxone",
+    "class": "Cephalosporin Antibiotic",
+    "indications": ["Severe bacterial infections", "Sepsis", "Meningitis"],
+    "dosage": "1-2g IV/IM every 24 hours.",
+    "sideEffects": ["Injection site pain", "Diarrhea", "Rash"],
+    "contraindications": ["Severe penicillin allergy (anaphylaxis)"],
+    "defenseContext": "Used at forward surgical teams for severe trauma and open wounds. Broad spectrum coverage."
+  },
+  {
+    "id": "m013",
+    "name": "Fentanyl Citrate (Actiq)",
+    "class": "Opioid Analgesic",
+    "indications": ["Severe breakthrough pain", "Combat trauma"],
+    "dosage": "400-800mcg transmucosal lozenge.",
+    "sideEffects": ["Respiratory depression", "Sedation", "Nausea"],
+    "contraindications": ["Unmonitored environments", "Hypoxia"],
+    "defenseContext": "Administered via transmucosal lozenge (lollipop) for rapid pain relief on the battlefield. Easy to remove from patient's mouth if respiratory depression occurs."
+  },
+  {
+    "id": "m014",
+    "name": "Diazepam (Valium)",
+    "class": "Benzodiazepine",
+    "indications": ["Seizures", "Nerve agent toxicity", "Severe anxiety"],
+    "dosage": "5-10mg IV/IM for seizures or nerve agent exposure.",
+    "sideEffects": ["Drowsiness", "Fatigue", "Muscle weakness"],
+    "contraindications": ["Severe respiratory insufficiency", "Sleep apnea"],
+    "defenseContext": "Included in the CANA (Convulsant Antidote for Nerve Agent) auto-injector. Administered after Atropine to prevent or stop seizures from nerve agents."
+  },
+  {
+    "id": "m015",
+    "name": "Doxycycline",
+    "class": "Tetracycline Antibiotic",
+    "indications": ["Malaria prophylaxis", "Lyme disease", "Anthrax"],
+    "dosage": "100mg PO daily for malaria prophylaxis.",
+    "sideEffects": ["Photosensitivity", "GI upset", "Esophagitis"],
+    "contraindications": ["Pregnancy", "Children under 8"],
+    "defenseContext": "Standard issue for malaria prophylaxis in deployed troops. Also stockpiled as an alternative treatment for anthrax exposure. Troops must be warned about sun sensitivity."
+  },
+  {
+    "id": "m016",
+    "name": "Ondansetron (Zofran)",
+    "class": "Antiemetic",
+    "indications": ["Nausea", "Vomiting"],
+    "dosage": "4-8mg ODT/IV/IM every 8 hours.",
+    "sideEffects": ["Headache", "Constipation", "QT prolongation"],
+    "contraindications": ["Apomorphine use", "Long QT syndrome"],
+    "defenseContext": "Used to treat nausea associated with trauma, transport (medevac), or administration of strong opioids like Morphine."
+  },
+  {
+    "id": "m017",
+    "name": "Lidocaine 1%",
+    "class": "Local Anesthetic",
+    "indications": ["Local anesthesia", "Suturing", "Minor procedures"],
+    "dosage": "Infiltrate locally as needed. Max 4.5 mg/kg.",
+    "sideEffects": ["Local stinging", "Numbness", "Arrhythmias if systemic"],
+    "contraindications": ["Heart block", "Amide anesthetic allergy"],
+    "defenseContext": "Essential for field suturing, chest tube placement, or other minor surgical interventions at aid stations."
+  },
+  {
+    "id": "m018",
+    "name": "Ertapenem",
+    "class": "Carbapenem Antibiotic",
+    "indications": ["Severe penetrating trauma", "Intra-abdominal infections"],
+    "dosage": "1g IV/IM daily.",
+    "sideEffects": ["Diarrhea", "Nausea", "Headache"],
+    "contraindications": ["Anaphylaxis to beta-lactams"],
+    "defenseContext": "Often used in combat casualty care for patients with severe penetrating injuries who cannot take oral medications (alternative to Moxifloxacin)."
+  },
+  {
+    "id": "m019",
+    "name": "Pralidoxime (2-PAM)",
+    "class": "Cholinesterase Reactivator",
+    "indications": ["Organophosphate poisoning", "Nerve agent toxicity"],
+    "dosage": "600mg IM via auto-injector.",
+    "sideEffects": ["Dizziness", "Blurred vision", "Tachycardia"],
+    "contraindications": ["Poisoning by carbamate insecticides"],
+    "defenseContext": "Included in the Mark I kit or ATNAA alongside Atropine. Essential for reactivating cholinesterase enzymes blocked by nerve agents."
+  },
+  {
+    "id": "m020",
+    "name": "Calcium Gluconate",
+    "class": "Electrolyte Supplement",
+    "indications": ["Hydrofluoric acid burns", "Hyperkalemia"],
+    "dosage": "Apply topically for HF burns or 1-2g IV for hyperkalemia.",
+    "sideEffects": ["Chalky taste", "Bradycardia if pushed fast"],
+    "contraindications": ["Ventricular fibrillation", "Hypercalcemia"],
+    "defenseContext": "Used for specific chemical burns (hydrofluoric acid) which can occur in maintenance or industrial military settings."
+  }
+]

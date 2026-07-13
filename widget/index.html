@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Defense Medicine Chatbot</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="logo-area">
+        <img src="images/logo.png" alt="Defense Medicine Shield" class="shield-logo">
+        <div class="logo-text">
+          <h1>DEFENSE<br>MEDICINE</h1>
+          <p>AI ASSISTANT</p>
+        </div>
+      </div>
+      
+      <!-- Quick Access Moved to Left Sidebar -->
+      <div class="sidebar-quick-access" style="flex: 1; padding: 20px 15px; overflow-y: auto;">
+        <h3 style="font-size: 0.9rem; color: #9ca3af; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Quick Access</h3>
+        <div class="quick-grid">
+          <button class="quick-btn sidebar-quick-btn">
+            <div class="icon-box blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+            <span>Trauma Care</span>
+          </button>
+          <button class="quick-btn sidebar-quick-btn">
+            <div class="icon-box red"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></div>
+            <span>CPR Guidelines</span>
+          </button>
+          <button class="quick-btn sidebar-quick-btn">
+            <div class="icon-box green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+            <span>Battlefield Medicine</span>
+          </button>
+          <button class="quick-btn sidebar-quick-btn">
+            <div class="icon-box purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l-3.5-3.5C12 7 11.5 7 11 7s-1 0-1.5.5L6 11l-1.8 8.2"></path><path d="M12 21v-8"></path><path d="M8 21v-3"></path><path d="M16 21v-3"></path></svg></div>
+            <span>Evacuation Protocols</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <div class="secure-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shield-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <div class="secure-text">
+            <strong>Secure • Reliable • Trusted</strong>
+            <span>For Our Heroes</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Banner -->
+      <header class="top-banner" style="background-image: url('images/banner.png');">
+        <div class="banner-overlay"></div>
+        <div class="banner-content">
+          <div class="banner-text">
+            <span class="welcome-text">Welcome,</span>
+            <h2>Defense Medicine <br><span class="highlight">Chatbot</span></h2>
+            <p>Your trusted medical companion<br>Anytime. Anywhere.</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Grid -->
+      <div class="content-grid">
+        
+        <!-- Chat Container -->
+        <div class="chat-container">
+          <div class="chat-header">
+            <img src="images/avatar.png" alt="Bot Avatar" class="chat-avatar-lg">
+            <div class="chat-title">
+              <h3>Defense Medical AI <svg width="16" height="16" viewBox="0 0 24 24" fill="#2563eb" stroke="#ffffff" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg></h3>
+            </div>
+          </div>
+          
+          <div id="chat-messages" class="chat-messages">
+            <!-- Initial Bot Message -->
+            <div class="message bot">
+              <div class="message-content">
+                Hello! I'm your Defense Medicine Assistant.<br>How can I help you today?
+              </div>
+            </div>
+          </div>
+          
+          <div class="chat-input-area">
+            <!-- Horizontal Nav Moved Here -->
+            <nav class="horizontal-nav">
+              <a href="#" class="h-nav-item active">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Chat
+              </a>
+              <a href="#" class="h-nav-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                Medical Protocols
+              </a>
+              <a href="#" class="h-nav-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 7 17l14-14 3.5 3.5-14 14z"></path><path d="M14 6l4 4"></path><path d="M3 13.5l4-4"></path><path d="M4 14l-2 6 6-2 1-1"></path></svg>
+                Drug & Treatment
+              </a>
+              <a href="#" class="h-nav-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Clinical Guidelines
+              </a>
+              <a href="#" class="h-nav-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                First Aid & Triage
+              </a>
+              <a href="#" class="h-nav-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Field Manual
+              </a>
+            </nav>
+
+            <form id="chat-form" class="input-form">
+              <input type="text" id="chat-input" class="chat-input" placeholder="Ask anything about defense medicine..." autocomplete="off">
+              <button type="submit" id="send-button" class="send-btn" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </button>
+              <button type="button" class="mic-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Panel completely removed -->
+
+      </div>
+      
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
