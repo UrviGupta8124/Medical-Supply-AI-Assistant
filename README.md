@@ -152,4 +152,5 @@ Output:
 
 ## 📜 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+This project is proprietary and not licensed for reuse or distribution without permission.
+
