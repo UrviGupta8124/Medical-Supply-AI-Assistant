@@ -1,5 +1,5 @@
 # 🩺 AI Assistant for Medical Facilities
-### *Developing Medical Supply Dashboard & Conversational AI Assistant*
+### *Medical Supply Chain & Pharmaceutical Inventory Assistant*
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=flat&logo=react)](https://react.dev/)
@@ -9,11 +9,7 @@
 [![Groq](https://img.shields.io/badge/Groq-Llama--3.1--8b-f34f29?style=flat)](https://groq.com/)
 [![LangChain](https://img.shields.io/badge/LangChain-FAISS-1C3C3C?style=flat)](https://www.langchain.com/)
 
-A full-stack, grounded conversational AI assistant and real-time dashboard built for pharmaceutical inventory management, 30-day demand forecasting, document Q&A (RAG), and supply chain analytics across base hospital medical stores.
-
-> **Internship Project** developed at **Centre for Development of Advanced Computing (C-DAC), Sec-62, Noida**  
-> **Student**: Urvi Gupta | **Roll Number**: 202401100400201 | **University**: KIET Deemed to be University, Ghaziabad, UP  
-> **Duration**: 1st June 2026 – 15th July 2026  
+A full-stack, grounded conversational AI assistant and real-time dashboard built for pharmaceutical inventory management, 30-day demand forecasting, document Q&A (RAG), and supply chain analytics across hospital medical stores.
 
 ---
 
@@ -154,23 +150,6 @@ Output:
 
 ---
 
-## 🎓 Internship & Project Metadata
+## 📜 License
 
-* **Project Title**: Developing Medical Supply Dashboard & AI Conversational Assistant
-* **Student Name**: Urvi Gupta
-* **Roll Number**: `202401100400201`
-* **Department**: Computer Science & Engineering
-* **Institution**: KIET Deemed to be University, Ghaziabad, Uttar Pradesh
-* **Organization**: Centre for Development of Advanced Computing (C-DAC), Sec-62, Noida
-* **Internship Period**: 1st June 2026 – 15th July 2026
-* **Mentors**:
-  * Mr. Rajiv Yadav (Scientist G, C-DAC Noida)
-  * Mr. Jitendra Singh (Scientist F, C-DAC Noida)
-  * Mr. Partha P. Chattaraj (PTO, C-DAC Noida)
-  * Mr. Nishant Jaiswal (Project Engineer, C-DAC Noida)
-
----
-
-## 📜 License & Acknowledgments
-
-Developed during the C-DAC Summer Internship Program 2026. Special thanks to the scientists and mentors at C-DAC Noida for their guidance in building this pharmaceutical inventory decision-support system.
+Distributed under the MIT License. See `LICENSE` for more information.
