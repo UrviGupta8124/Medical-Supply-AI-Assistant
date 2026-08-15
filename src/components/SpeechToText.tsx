@@ -112,13 +112,89 @@ export default function SpeechToText({ onTranscript, className, language }: Spee
   const customListeningClass = isListening ? '!text-orange-500 animate-pulse' : '!text-red-500';
 
   return (
-    <button
-      type="button"
-      onClick={toggleListening}
-      className={className ? `${className} ${customListeningClass}` : `${baseClass} ${listeningClass}`}
-      title={isListening ? "Stop Listening" : "Start Speech to Text"}
-    >
-      {isListening ? <MicOff size={20} /> : <Mic size={20} />}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={toggleListening}
+        className={className ? `${className} ${customListeningClass}` : `${baseClass} ${listeningClass}`}
+        title={isListening ? "Stop Listening" : "Start Speech to Text"}
+      >
+        {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+      </button>
+
+      {isListening && (
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '180px',
+          background: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          borderTop: '1px solid rgba(0,0,0,0.08)',
+          borderBottomLeftRadius: '12px',
+          borderBottomRightRadius: '12px',
+          zIndex: 9999,
+          boxShadow: '0 -4px 12px rgba(0,0,0,0.05)'
+        }}>
+          {/* Sound Wave Bars */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div className="animate-pulse" style={{ width: '4px', height: '16px', background: '#b54a39', borderRadius: '2px' }}></div>
+            <div className="animate-pulse" style={{ width: '4px', height: '28px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.1s' }}></div>
+            <div className="animate-pulse" style={{ width: '4px', height: '40px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.2s' }}></div>
+            <div className="animate-pulse" style={{ width: '4px', height: '28px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.3s' }}></div>
+            <div className="animate-pulse" style={{ width: '4px', height: '16px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.4s' }}></div>
+          </div>
+          
+          {/* Listening Text */}
+          <span style={{
+            fontSize: '15px',
+            fontWeight: '600',
+            color: '#b54a39',
+            letterSpacing: '1px'
+          }}>
+            LISTENING...
+          </span>
+
+          {/* Stop Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              stopRecording();
+            }}
+            style={{
+              background: '#b54a39',
+              color: 'white',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '6px 20px',
+              fontSize: '13px',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#8c3527'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#b54a39'}
+          >
+            <span style={{
+              display: 'inline-block',
+              width: '10px',
+              height: '10px',
+              background: 'white',
+              borderRadius: '1px'
+            }}></span>
+            Stop
+          </button>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Assistant for Medical Facilities - Admin & Chat Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Dashboard Header -->
+        <header>
+            <h1>AI Assistant for Medical Facilities</h1>
+            <div id="admin-session">
+                <button id="btn-admin-login">Admin Log In</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Data Grid Section -->
+            <section id="data-dashboard">
+                <h2>Administrative Control Panel</h2>
+                <div class="table-actions">
+                    <select id="select-table">
+                        <option value="bases">Bases/Hospitals</option>
+                        <option value="items">Drug Master Items</option>
+                        <option value="inventory">Live Inventory</option>
+                        <option value="rate_contracts">Active Contracts</option>
+                    </select>
+                </div>
+                <div id="grid-container">
+                    <p>Select a table to view and manage records.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Floating Chat Widget -->
+        <div id="chat-widget" class="collapsed">
+            <div id="chat-header">
+                <h3>💬 AAMF Assistant</h3>
+                <button id="btn-toggle-chat">_</button>
+            </div>
+            <div id="chat-body">
+                <div id="chat-messages"></div>
+                <div id="chat-controls">
+                    <input type="text" id="chat-input" placeholder="Type medicine or contract query...">
+                    <button id="btn-send">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

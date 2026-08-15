@@ -355,6 +355,388 @@ export default function ChatWidgetPage() {
   const [formData, setFormData] = useState<any>({});
   const [newTableName, setNewTableName] = useState("");
 
+  // PDF Document Q&A States
+  const [pdfLoaded, setPdfLoaded] = useState(false);
+  const [pdfName, setPdfName] = useState("");
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
+  const [showPdfPanel, setShowPdfPanel] = useState(false);
+
+  useEffect(() => {
+    const checkPdfStatus = async () => {
+      try {
+        const res = await fetch("http://localhost:5001/api/pdf-status");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.loaded) {
+            setPdfLoaded(true);
+            setPdfName(data.filename);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking PDF status:", err);
+      }
+    };
+    checkPdfStatus();
+  }, []);
+
+  const handlePdfUpload = async (file: File) => {
+    if (!file.type || file.type !== "application/pdf") {
+      alert("Only PDF files are supported.");
+      return;
+    }
+    setIsUploadingPdf(true);
+    const formDataPayload = new FormData();
+    formDataPayload.append("file", file);
+    try {
+      const res = await fetch("http://localhost:5001/api/upload-pdf", {
+        method: "POST",
+        body: formDataPayload,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPdfLoaded(true);
+        setPdfName(data.filename);
+      } else {
+        alert(data.error || "Failed to parse PDF.");
+      }
+    } catch (err) {
+      console.error("PDF upload error:", err);
+      alert("Failed to upload PDF. Please check connection.");
+    } finally {
+      setIsUploadingPdf(false);
+    }
+  };
+
+  const handlePdfClear = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/api/pdf-clear", {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setPdfLoaded(false);
+        setPdfName("");
+      }
+    } catch (err) {
+      console.error("PDF clear error:", err);
+    }
+  };
+  
+  // Voice Conversational Loop (ChatGPT Voice Mode Style)
+  const [voiceModeActive, setVoiceModeActive] = useState(false);
+  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const lastSpokenTextRef = useRef("");
+  const ignoreSpeechEndRef = useRef(false);
+  const accumulatedTranscriptRef = useRef("");
+  const silenceTimerRef = useRef<any>(null);
+
+  // Sync refs to avoid stale closures in browser Speech Recognition and Synthesis callbacks
+  const voiceModeActiveRef = useRef(voiceModeActive);
+  const handleQueryRef = useRef<any>(null);
+  const isLoadingRef = useRef(isLoading);
+
+  useEffect(() => {
+    voiceModeActiveRef.current = voiceModeActive;
+  }, [voiceModeActive]);
+
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
+
+  useEffect(() => {
+    return () => {
+      console.log("Voice Mode: Cleaning up voice processes on unmount.");
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
+      }
+    };
+  }, []);
+
+  const startVoiceRecognition = () => {
+    if (typeof window === "undefined" || !voiceModeActiveRef.current) return;
+    
+    // Do not listen/restart if we are actively waiting for server reply
+    if (isLoadingRef.current) {
+      console.log("Voice Mode: Skipping recognition start during thinking phase.");
+      return;
+    }
+
+    const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionClass) {
+      alert("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      setVoiceModeActive(false);
+      return;
+    }
+
+    console.log("Voice Mode: startVoiceRecognition invoked. Current active status:", voiceModeActiveRef.current);
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+    }
+
+    const rec = new SpeechRecognitionClass();
+    rec.lang = lang === "HI" ? "hi-IN" : "en-US";
+    rec.continuous = true;
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+
+    rec.onstart = () => {
+      console.log("Voice Mode: Speech recognition session started.");
+      setIsVoiceListening(true);
+      setIsSpeaking(false);
+      accumulatedTranscriptRef.current = "";
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+    };
+
+    rec.onresult = (event: any) => {
+      let finalTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript + " ";
+        }
+      }
+
+      const segment = finalTranscript.trim();
+      if (!segment) return;
+      
+      console.log("Voice Mode: Speech transcript segment received:", segment);
+      
+      // Interruptible voice assistant (barge-in): stop speaking instantly if user speaks
+      if (typeof window !== "undefined" && window.speechSynthesis && window.speechSynthesis.speaking) {
+        // Echo filter: ignore computer's own speakers output if similarity matches
+        const botText = lastSpokenTextRef.current || "";
+        const cleanBotText = botText.toLowerCase().replace(/[^\w\s]/g, "");
+        const cleanTranscript = segment.toLowerCase().replace(/[^\w\s]/g, "");
+        
+        const transcriptWords = cleanTranscript.split(/\s+/).filter(Boolean);
+        if (transcriptWords.length > 0) {
+          let matchCount = 0;
+          for (const word of transcriptWords) {
+            const wordRegex = new RegExp("\\b" + word + "\\b");
+            if (wordRegex.test(cleanBotText)) {
+              matchCount++;
+            }
+          }
+          const similarity = matchCount / transcriptWords.length;
+          console.log(`Voice Mode Echo Filter: Transcript similarity to bot speech: ${(similarity * 100).toFixed(1)}%`);
+          
+          if (similarity > 0.55 && transcriptWords.length > 2) {
+            console.log("Voice Mode Echo Filter: Ignored echo feedback from speakers.");
+            return;
+          }
+        }
+
+        console.log("Voice Mode: User interrupted the assistant! Cancelling voice output.");
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+
+      accumulatedTranscriptRef.current += (accumulatedTranscriptRef.current ? " " : "") + segment;
+      console.log("Voice Mode: Total accumulated transcript:", accumulatedTranscriptRef.current);
+
+      // Reset the silence boundary timer: wait for 1.4 seconds of absolute silence before committing query
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      
+      silenceTimerRef.current = setTimeout(() => {
+        const query = accumulatedTranscriptRef.current.trim();
+        if (query) {
+          console.log("Voice Mode: 1.4s silence timer expired. Committing query:", query);
+          accumulatedTranscriptRef.current = "";
+          try {
+            rec.stop();
+          } catch (e) {}
+          if (handleQueryRef.current) {
+            handleQueryRef.current(query);
+          }
+        }
+      }, 1400);
+    };
+
+    rec.onerror = (e: any) => {
+      console.log("Voice Mode: Speech recognition event error code:", e.error);
+    };
+
+    rec.onend = () => {
+      console.log("Voice Mode: Speech recognition session ended.");
+      setIsVoiceListening(false);
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+      // Submit any remaining accumulated text on session end
+      const query = accumulatedTranscriptRef.current.trim();
+      if (query) {
+        console.log("Voice Mode: Submitting remaining accumulated text on session end:", query);
+        accumulatedTranscriptRef.current = "";
+        if (handleQueryRef.current) {
+          handleQueryRef.current(query);
+        }
+      }
+      
+      // Auto-restart recognition if voice loop is still active and we are NOT thinking/fetching
+      if (voiceModeActiveRef.current && !isLoadingRef.current) {
+        console.log("Voice Mode: Auto-restarting recognition after end...");
+        setTimeout(() => {
+          startVoiceRecognition();
+        }, 300);
+      }
+    };
+
+    recognitionRef.current = rec;
+    try {
+      rec.start();
+    } catch (err) {
+      console.error("Voice Mode: Failed to start speech recognition:", err);
+    }
+  };
+
+  const speakText = (text: string, force = false) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    
+    console.log("Voice Mode: speakText invoked. Speaking active?", isSpeaking, "Voice mode active?", voiceModeActiveRef.current);
+
+    // Stop any current voice playback
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    if (!voiceModeActiveRef.current && !force) {
+      console.log("Voice Mode: speakText ignored (voiceModeActive is false and force is false).");
+      return;
+    }
+
+    // Clean text: if it contains tables, give a brief friendly summary instead of reading row-by-row
+    let cleanText = text;
+    if (text.includes('|') && (text.match(/\|/g) || []).length > 4) {
+      const tableIndex = text.indexOf('|');
+      let intro = text.substring(0, tableIndex).trim();
+      intro = intro.replace(/[\#\*\_`~\-\+]/g, " ").trim();
+      if (intro.length > 25) {
+        cleanText = intro + " . I have displayed the detailed table below for your review.";
+      } else {
+        if (text.toLowerCase().includes("contract")) {
+          cleanText = "Here are the active supplier rate contracts. I have displayed the detailed table below.";
+        } else if (text.toLowerCase().includes("forecast") || text.toLowerCase().includes("stockout")) {
+          cleanText = "Here is the 30-day demand forecast. Please review the depletion timelines in the table below.";
+        } else if (text.toLowerCase().includes("alert") || text.toLowerCase().includes("low stock")) {
+          cleanText = "I have flagged the low stock alerts. The critical items are listed in the table below.";
+        } else {
+          cleanText = "I have found the matching records. Please view the detailed table displayed below.";
+        }
+      }
+    } else {
+      cleanText = cleanText.replace(/\|/g, " ");
+      cleanText = cleanText.replace(/[\#\*\_`~\-\+]/g, " ");
+      cleanText = cleanText.replace(/\n+/g, " . ");
+      if (cleanText.length > 200) {
+        cleanText = cleanText.substring(0, 200) + "... I have displayed the full details below.";
+      }
+    }
+
+    lastSpokenTextRef.current = cleanText;
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+    // Auto-detect language
+    const isHindi = /[\u0900-\u097F]/.test(cleanText);
+    utterance.lang = isHindi ? "hi-IN" : "en-US";
+    utterance.rate = 0.93; // Slower, more natural speech pace
+    utterance.pitch = 1.0;
+
+    const voices = window.speechSynthesis.getVoices();
+    let matchingVoice = null;
+    if (voices.length > 0) {
+      if (isHindi) {
+        matchingVoice = voices.find(v => v.lang.startsWith("hi"));
+      } else {
+        matchingVoice = voices.find(v => v.lang.startsWith("en"));
+      }
+      if (matchingVoice) {
+        utterance.voice = matchingVoice;
+      }
+    }
+
+    utterance.onstart = () => {
+      console.log("Voice Mode: Speech synthesis started speaking.");
+      setIsSpeaking(true);
+      // Stop recognition while speaking to prevent microphone echo loops
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
+      }
+    };
+    
+    utterance.onend = () => {
+      console.log("Voice Mode: Speech synthesis finished speaking.");
+      setIsSpeaking(false);
+      
+      if (ignoreSpeechEndRef.current) {
+        console.log("Voice Mode: Interrupted manually. Skipping auto-resume.");
+        ignoreSpeechEndRef.current = false;
+        return;
+      }
+
+      if (voiceModeActiveRef.current) {
+        setTimeout(() => {
+          startVoiceRecognition();
+        }, 200);
+      }
+    };
+    
+    utterance.onerror = (errEvent) => {
+      console.error("Voice Mode: Speech synthesis error event:", errEvent);
+      setIsSpeaking(false);
+
+      if (ignoreSpeechEndRef.current) {
+        console.log("Voice Mode: Interrupted manually. Skipping auto-resume.");
+        ignoreSpeechEndRef.current = false;
+        return;
+      }
+
+      if (voiceModeActiveRef.current) {
+        setTimeout(() => {
+          startVoiceRecognition();
+        }, 200);
+      }
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleVoiceToggle = () => {
+    console.log("Voice Mode: handleVoiceToggle triggered. Current active state:", voiceModeActive);
+    if (voiceModeActive) {
+      setVoiceModeActive(false);
+      setIsVoiceListening(false);
+      setIsSpeaking(false);
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
+        recognitionRef.current = null;
+      }
+    } else {
+      setVoiceModeActive(true);
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setIsSpeaking(false);
+      setTimeout(() => {
+        startVoiceRecognition();
+      }, 150);
+    }
+  };
+
   const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState("");
@@ -829,6 +1211,11 @@ export default function ChatWidgetPage() {
   const handleQuery = async (query: string) => {
     if (!query.trim() || isLoading) return;
     
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+    
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: query };
     setMessages((prev) => [...prev, userMsg]);
     setLocalInput("");
@@ -851,12 +1238,14 @@ export default function ChatWidgetPage() {
       let botMsgId = (Date.now() + 1).toString();
       setMessages((prev) => [...prev, { id: botMsgId, role: "bot", content: "" }]);
 
+      let completeResponse = "";
       if (reader) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           
           const chunk = decoder.decode(value, { stream: true });
+          completeResponse += chunk;
           
           setMessages((prev) => 
             prev.map((msg) => 
@@ -866,6 +1255,8 @@ export default function ChatWidgetPage() {
             )
           );
         }
+        
+        speakText(completeResponse);
       }
     } catch (error) {
       console.error("Error fetching from backend:", error);
@@ -874,6 +1265,10 @@ export default function ChatWidgetPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    handleQueryRef.current = handleQuery;
+  }, [handleQuery]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1156,7 +1551,16 @@ export default function ChatWidgetPage() {
       {/* Floating Widget Toggle Button */}
       {!isOpen && !isLoggedIn && (
         <button className="widget-toggle-btn" onClick={() => setIsOpen(true)}>
-          <User size={32} />
+          <img 
+            src="/logo.png" 
+            alt="Assistant" 
+            style={{ 
+              height: '40px', 
+              width: '40px', 
+              objectFit: 'contain',
+              borderRadius: '50%'
+            }} 
+          />
         </button>
       )}
 
@@ -1198,6 +1602,113 @@ export default function ChatWidgetPage() {
               </button>
             </div>
           </div>
+
+          {/* PDF Panel */}
+          {showPdfPanel && (
+            <div className="pdf-panel" style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+              padding: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              fontSize: '13px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 600, color: '#1a365d' }}>PDF Document Q&A Context</span>
+                <button 
+                  type="button" 
+                  onClick={() => setShowPdfPanel(false)}
+                  style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '14px' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {!pdfLoaded ? (
+                <div 
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                      handlePdfUpload(e.dataTransfer.files[0]);
+                    }
+                  }}
+                  style={{
+                    border: '2px dashed #3182ce',
+                    borderRadius: '6px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    background: '#f7fafc',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.pdf';
+                    input.onchange = (e: any) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handlePdfUpload(e.target.files[0]);
+                      }
+                    };
+                    input.click();
+                  }}
+                >
+                  {isUploadingPdf ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                      <div className="animate-spin" style={{
+                        border: '3px solid #e2e8f0',
+                        borderTop: '3px solid #3182ce',
+                        borderRadius: '50%',
+                        width: '24px',
+                        height: '24px'
+                      }}></div>
+                      <span>Parsing & indexing PDF...</span>
+                    </div>
+                  ) : (
+                    <div>
+                      <p style={{ margin: 0, color: '#4a5568', fontWeight: 500 }}>Drag & drop regulation/tender PDF</p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#718096' }}>or click to browse</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: '#f0fff4',
+                  border: '1px solid #c6f6d5',
+                  borderRadius: '6px',
+                  padding: '8px 12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#22543d', width: '70%' }}>
+                    <span style={{ color: '#38a169', fontSize: '16px', fontWeight: 'bold' }}>✓</span>
+                    <span style={{ fontWeight: 500, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={pdfName}>
+                      {pdfName}
+                    </span>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={handlePdfClear}
+                    style={{
+                      background: '#fff',
+                      border: '1px solid #cbd5e0',
+                      borderRadius: '4px',
+                      padding: '2px 8px',
+                      fontSize: '11px',
+                      color: '#4a5568',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Clear Context
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Messages */}
           <div className="chat-messages">
@@ -1255,7 +1766,17 @@ export default function ChatWidgetPage() {
               <button type="button" className="lang-btn" onClick={() => setLang(lang === 'EN' ? 'HI' : 'EN')}>
                 {lang}
               </button>
-              <button type="button" className="icon-btn">
+              <button 
+                type="button" 
+                className="icon-btn"
+                onClick={() => setShowPdfPanel(!showPdfPanel)}
+                title="Upload PDF Context"
+                style={{
+                  color: showPdfPanel ? '#dd6b20' : '#f97316',
+                  backgroundColor: showPdfPanel ? '#fffaf0' : 'transparent',
+                  borderColor: showPdfPanel ? '#f97316' : undefined
+                }}
+              >
                 <FileText size={16} />
               </button>
               
@@ -1276,11 +1797,167 @@ export default function ChatWidgetPage() {
               <button type="submit" className="send-btn" disabled={isLoading || !localInput.trim()}>
                 <Send size={18} fill="currentColor" />
               </button>
-              <button type="button" className="icon-btn text-orange-500">
-                <Activity size={18} />
+              <button 
+                type="button" 
+                className="icon-btn"
+                onClick={handleVoiceToggle}
+                title={isSpeaking ? "Mute Playback" : voiceModeActive ? "Disable Voice Mode" : "Enable Voice Mode"}
+                style={{
+                  backgroundColor: isSpeaking || voiceModeActive ? '#fffaf0' : 'transparent',
+                  borderColor: isSpeaking || voiceModeActive ? '#f97316' : undefined,
+                  color: isSpeaking || voiceModeActive ? '#dd6b20' : '#f97316'
+                }}
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className={isSpeaking ? "animate-pulse" : ""}
+                  style={{ color: isSpeaking || voiceModeActive ? '#dd6b20' : '#f97316' }}
+                >
+                  <path d="M12 4v16" />
+                  <path d="M17 8v8" />
+                  <path d="M22 10v4" />
+                  <path d="M7 8v8" />
+                  <path d="M2 10v4" />
+                </svg>
               </button>
             </form>
           </div>
+
+          {/* Voice Mode Listening/Speaking Overlay (ChatGPT Style) */}
+          {voiceModeActive && (
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '180px',
+              background: '#ffffff',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              borderTop: '1px solid rgba(0,0,0,0.08)',
+              borderBottomLeftRadius: '12px',
+              borderBottomRightRadius: '12px',
+              zIndex: 9999,
+              boxShadow: '0 -4px 12px rgba(0,0,0,0.05)'
+            }}>
+              {/* Sound Wave Bars */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div className="animate-pulse" style={{ width: '4px', height: '16px', background: '#b54a39', borderRadius: '2px' }}></div>
+                <div className="animate-pulse" style={{ width: '4px', height: '28px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.1s' }}></div>
+                <div className="animate-pulse" style={{ width: '4px', height: '40px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.2s' }}></div>
+                <div className="animate-pulse" style={{ width: '4px', height: '28px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.3s' }}></div>
+                <div className="animate-pulse" style={{ width: '4px', height: '16px', background: '#b54a39', borderRadius: '2px', animationDelay: '0.4s' }}></div>
+              </div>
+              
+              {/* Status Text */}
+              <span style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                color: '#b54a39',
+                letterSpacing: '1px'
+              }}>
+                {isSpeaking ? 'SPEAKING...' : isLoading ? 'THINKING...' : 'LISTENING...'}
+              </span>
+
+              {/* Action Buttons Row */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                {isSpeaking && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Voice Mode: User clicked Speak Now button to interrupt speech.");
+                      ignoreSpeechEndRef.current = true;
+                      if (typeof window !== "undefined" && window.speechSynthesis) {
+                        window.speechSynthesis.cancel();
+                      }
+                      setIsSpeaking(false);
+                      setTimeout(() => {
+                        startVoiceRecognition();
+                      }, 150);
+                    }}
+                    style={{
+                      background: '#f97316',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '20px',
+                      padding: '6px 18px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#dd6b20'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#f97316'}
+                  >
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="13" 
+                      height="13" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2.5" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                      <line x1="12" x2="12" y1="19" y2="22" />
+                    </svg>
+                    Speak Now
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleVoiceToggle();
+                  }}
+                  style={{
+                    background: '#b54a39',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '20px',
+                    padding: '6px 18px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#8c3527'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#b54a39'}
+                >
+                  <span style={{
+                    display: 'inline-block',
+                    width: '10px',
+                    height: '10px',
+                    background: 'white',
+                    borderRadius: '1px'
+                  }}></span>
+                  Stop
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
