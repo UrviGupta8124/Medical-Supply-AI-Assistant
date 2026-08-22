@@ -75,7 +75,7 @@ MEMORY_LIMIT = 6  # number of recent messages to include as context
 
 # 5. Hybrid Master Agent Setup
 llm_primary = ChatGroq(model="llama-3.1-8b-instant", temperature=0, max_tokens=2500)
-llm_fallback = ChatGroq(model="llama3-8b-8192", temperature=0, max_tokens=2500)
+llm_fallback = ChatGroq(model="llama-3.3-70b-versatile", temperature=0, max_tokens=2500)
 llm = llm_primary # Keep reference for compatibility
 
 import time
